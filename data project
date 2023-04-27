@@ -1,0 +1,192 @@
+import mysql.connector as ms
+con=ms.connect(host='localhost',user='root',passwd='root')
+cur=con.cursor()
+cur.execute('create database if not exists ipl')
+cur.execute('use ipl')
+import csv
+def func2022_read(x,y):
+    f=open(x,'r')
+    r=csv.reader(f)
+    try:
+        for i in r:
+            num1=i[0]
+            num2=i[1]
+            if i[2]=='':
+                num3=0
+            else:
+                num3=int(i[2])
+            if i[3]=='':
+                num4=0
+            else:
+                num4=int(i[3])
+            if i[4]=='':
+                num5=0.0
+            else:
+                num5=float(i[4])
+            if i[5]=='':
+                i[5]=0
+            num6=int(i[5])
+            if i[6]=='':
+                i[6]=0
+            num7=float(i[6])
+            q='insert into '+y+' values("{}","{}",{},{},"{}",{},"{}")'.format(num1,num2,num3,num4,num5,num6,num7)
+            cur.execute(q)
+            con.commit()
+    except EOFError:
+         f.close()
+for i in range(2015,2023):
+    v=str(i)
+    i='ipl'+str(i)
+    q='''create table if not exists '''+i+'''(name char(45),teams varchar(70),matches int(5),runs int(5),avgrun decimal(5,2),wickets int(4),avgbowl decimal(6,2))'''
+    cur.execute(q)
+    a='''D:\\'''
+    a+= v+'.csv'
+    print("Completed ipl",v)
+    func2022_read(a,i)
+def highruns():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    x=input('Enter the year')
+    q='select name,max(runs) from ipl' +x+ ' where runs =(select max(runs) from ipl'+x+' )'
+    cur.execute(q)
+    a=cur.fetchall()
+    print(a)
+def highestaverage():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    x=input('Enter the year')
+    q='select name, max(avgrun) from ipl'+x+' where avgrun=(select max(avgrun) from ipl'+x+' )'
+    cur.execute(q)
+    a=cur.fetchall()
+    print(a)
+def highestwickets():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    x=input('Enter the year')
+    q='select name, max(wickets) from ipl'+x+' where wickets=(select max(wickets) from ipl'+x+' )'
+    cur.execute(q)
+    a=cur.fetchall()
+    print(a)
+def highavg():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    x=input('Enter the year')
+    q='select  name, max(avgbowl) from ipl'+x+' where avgbowl=(select max(avgbowl) from ipl'+x+' )'
+    cur.execute(q)
+    a=cur.fetchall()
+    print(a)
+def sortruns ():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    x=input('Enter the year')
+    q='select* from ipl'+x+' order by runs'
+    cur.execute(q)
+    a=cur.fetchall()
+    for i in a:
+        print(i)
+def sortwickets ():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    x=input('Enter the year')
+    q='select* from ipl'+x+' order by wickets'
+    cur.execute(q)
+    a=cur.fetchall()
+    print(a)
+    for i in a:
+        print(i)
+def search():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    y=input('Player name')
+    x=input('enter the year')
+    try:
+        q='select* from ipl'+x+' where name="{}"'.format(y)
+        cur.execute(q)
+        a=cur.fetchall()
+        print(a)
+    except:
+        print("Record Not there")
+def update():
+    d={1:'matches',2:'runs',3:'wickets'}
+    d1={1:'avgrun',2:'avgbowl'}
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    y=input('Player name')
+    x=input('enter the year')
+    try:
+        a=int(input("What is To be changed(runs\wickets\matches)-1 for (bowlavg\batavg)-2"))
+        if a ==1:
+            b=int(input('matches 1 ,runs-2, wickets-3'))
+            c=int(input("New value"))
+            q='select* from ipl'+x+' where name="{}"'.format(y)
+            cur.execute(q)
+            a=cur.fetchall()
+            print('old record',a)
+            q='update ipl'+x+' set ' +d[b]+' ={} where name="{}"'.format(c,y)
+            cur.execute(q)
+            con.commit()
+            q='select* from ipl'+x+' where name="{}"'.format(y)
+            cur.execute(q)
+            a=cur.fetchall()
+            print('new record',a)
+        elif a==2:
+            b=int(input('avgrun-2 avgbowl-2'))
+            c=int(input("New value"))
+            q='select* from ipl'+x+' where name="{}"'.format(y)
+            cur.execute(q)
+            a=cur.fetchall()
+            print('old record',a)
+            q='update ipl'+x+' set ' +d1[b]+' ="{}" where name="{}"'.format(c,y)
+            cur.execute(q)
+            con.commit()
+            q='select* from ipl'+x+' where name="{}"'.format(y)
+            a=cur.fetchall()
+            print('new record',a)
+        else:
+            print('Invalid Function')
+    except:
+        print("Record Not there")
+def delete():
+    print('Available years 2015,2016,2017,2018,2019,2020,2022')
+    y=input('Player name')
+    x=input('enter the year')
+    try:
+        q='select* from ipl'+x+' where name="{}"'.format(y)
+        cur.execute(q)
+        a=cur.fetchall()
+        q='delete from ipl'+x+' where name="{}"'.format(y)
+        cur.execute(q)
+        con.commit()
+        print(a,'is deleted from ipl',x)
+    except:
+        print("Record Not there")
+while True:
+    print('''1-highest runs
+2=highest runaverage
+3=highest wickets
+4-highest bowling average
+5-to sort by runs
+6-to sort by wickets
+7-search
+8-update
+9-Delete
+10-Exit''')
+    x=int(input('Enter the function'))
+    if x==1:
+        highruns()
+    elif x==2:
+        highestaverage()
+    elif x==3:
+        highestwickets()
+    elif x==4:
+        highavg()
+    elif x==5:
+        sortruns()
+    elif x==6:
+        sortwickets()
+    elif x==7:
+        search()
+    elif x==8:
+        update()
+    elif x==10:
+        cur.execute('drop database ipl')
+        con.commit()
+        con.close()
+        print('*'*15,'Thank You','*'*15)
+        break
+    elif x==9:
+        delete()
+    else:
+        print('Invalid Function')
